@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens.
+ *
+ * Light values live on bare `:root`; the dark overrides only redefine the
+ * tokens, so every component can style with `bg-surface`/`text-muted` and
+ * never needs a `dark:` variant.
+ */
+:root {
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --surface-muted: #f1f3f6;
+  --border: #e3e6ea;
+  --border-strong: #cdd3da;
+  --foreground: #14181f;
+  --muted: #616b7a;
+  --subtle: #8a93a1;
+
+  --accent: #2f5fe0;
+  --accent-hover: #2450c8;
+  --accent-soft: #e8eefc;
+  --accent-contrast: #ffffff;
+
+  --success: #12805c;
+  --success-soft: #dcf4ea;
+  --warning: #9a6212;
+  --warning-soft: #fdf0d8;
+  --danger: #c02a35;
+  --danger-soft: #fce9ea;
+  --neutral-soft: #eceff3;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0d1015;
+    --surface: #151a21;
+    --surface-muted: #1b212a;
+    --border: #262d38;
+    --border-strong: #38414f;
+    --foreground: #e8ecf1;
+    --muted: #98a2b1;
+    --subtle: #6f7987;
+
+    --accent: #6f9bff;
+    --accent-hover: #8bb0ff;
+    --accent-soft: #1b2740;
+    --accent-contrast: #0d1015;
+
+    --success: #4cc79a;
+    --success-soft: #122b23;
+    --warning: #e0aa5a;
+    --warning-soft: #2e2415;
+    --danger: #f2757f;
+    --danger-soft: #331a1d;
+    --neutral-soft: #222932;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border-base: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-contrast: var(--accent-contrast);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-neutral-soft: var(--neutral-soft);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  border-color: var(--border);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Tabular figures keep numeric table columns from jittering as they update. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nothing this app stores may leave the device in a backup.
+
+  The encrypted preferences hold the device API token, and its master key lives
+  in the Android Keystore, which is not backed up: restoring the file onto
+  another device would produce an unreadable store, and backing up a device
+  credential at all is the wrong default. A restored install simply re-enrolls.
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="gateway_secure_prefs.xml" />
+    <exclude domain="database" path="gateway.db" />
+</full-backup-content>

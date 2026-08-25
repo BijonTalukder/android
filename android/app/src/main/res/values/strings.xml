@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Device Gateway</string>
+    <string name="app_tagline">Remotely managed Android gateway agent</string>
+
+    <!-- Enrollment -->
+    <string name="enroll_title">Enroll this device</string>
+    <string name="enroll_help">Ask an administrator for an enrollment code from the dashboard. The code is single-use by default and expires.</string>
+    <string name="hint_server_url">Server URL</string>
+    <string name="hint_device_name">Device name</string>
+    <string name="hint_enrollment_code">Enrollment code</string>
+    <string name="action_enroll">Enroll</string>
+    <string name="enrolling">Enrolling…</string>
+    <string name="enrolled_as">Enrolled as %1$s</string>
+    <string name="enrollment_failed">Enrollment failed</string>
+    <string name="enrollment_revoked">This device\'s access was revoked. Enroll again with a new code.</string>
+    <string name="error_server_required">Enter the server URL</string>
+    <string name="error_name_required">Enter a device name</string>
+    <string name="error_code_required">Enter the enrollment code</string>
+
+    <!-- Status -->
+    <string name="status_title">Gateway status</string>
+    <string name="label_device_id">Device ID</string>
+    <string name="label_device_name">Name</string>
+    <string name="label_server">Server</string>
+    <string name="label_transport">Transport</string>
+    <string name="label_intervals">Intervals</string>
+    <string name="label_battery">Battery</string>
+    <string name="label_network">Network</string>
+    <string name="label_queue">Result queue</string>
+    <string name="label_fast_polling">Fast polling</string>
+    <string name="label_sms">SMS</string>
+
+    <string name="intervals_format">poll %1$ds / heartbeat %2$ds</string>
+    <string name="battery_format">%1$d%% (%2$s)</string>
+    <string name="charging">charging</string>
+    <string name="not_charging">on battery</string>
+    <string name="service_state_on">On</string>
+    <string name="service_state_off">Off</string>
+    <string name="sms_state_granted">Permission granted</string>
+    <string name="sms_state_not_granted">Permission not granted</string>
+
+    <!-- Actions -->
+    <string name="action_sync_now">Sync now</string>
+    <string name="action_heartbeat">Send heartbeat</string>
+    <string name="action_grant_sms">Grant SMS permission</string>
+    <string name="action_unenroll">Unenroll this device</string>
+    <string name="action_stop">Stop</string>
+    <string name="cancel">Cancel</string>
+    <string name="continue_label">Continue</string>
+
+    <string name="syncing">Syncing…</string>
+    <string name="sync_report">Executed: %1$d · Failed: %2$d · Queued results sent: %3$d</string>
+    <string name="sending_heartbeat">Sending heartbeat…</string>
+    <string name="heartbeat_failed">Could not reach the server</string>
+
+    <string name="start_fast_polling">Start fast polling</string>
+    <string name="stop_fast_polling">Stop fast polling</string>
+    <string name="fast_polling_help">Android only runs scheduled background work every 15 minutes at best. Fast polling runs a foreground service, with a permanent notification, to honour the configured polling interval.</string>
+
+    <string name="unenroll_title">Unenroll this device?</string>
+    <string name="unenroll_message">The stored device token is deleted and background work stops. The device stays in the dashboard until an administrator removes it, and re-enrolling needs a new code.</string>
+    <string name="unenroll_confirm">Unenroll</string>
+    <string name="unenrolled">Device unenrolled</string>
+
+    <!-- Permissions -->
+    <string name="sms_permission_title">Allow sending SMS?</string>
+    <string name="sms_permission_rationale">The gateway can be asked to send an SMS from this device\'s SIM. Messages are only sent when an administrator queues a SEND_SMS command, every send is logged, and the capability must also be enabled on the server. Grant this only if outbound SMS from this device is authorised by your carrier agreement, local law, and the recipients\' consent.</string>
+    <string name="sms_permission_granted">SMS permission granted</string>
+    <string name="sms_permission_denied">SMS permission denied. SEND_SMS commands will report a failure.</string>
+    <string name="notifications_denied">Without notification permission the gateway service cannot show its status.</string>
+
+    <!-- Foreground service -->
+    <string name="notification_channel_name">Gateway status</string>
+    <string name="notification_channel_description">Shows when the gateway agent is actively polling for commands.</string>
+    <string name="service_notification_title">Device Gateway active</string>
+    <string name="service_starting">Starting…</string>
+    <string name="service_running">%1$s · polling every %2$ds</string>
+    <string name="service_error">Last poll failed; retrying</string>
+
+    <plurals name="queued_results">
+        <item quantity="one">%1$d result waiting to send</item>
+        <item quantity="other">%1$d results waiting to send</item>
+    </plurals>
+
+    <plurals name="heartbeat_ok">
+        <item quantity="one">Heartbeat sent · %1$d command pending</item>
+        <item quantity="other">Heartbeat sent · %1$d commands pending</item>
+    </plurals>
+</resources>

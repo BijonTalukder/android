@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".ui.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textAppearance="?attr/textAppearanceHeadline6" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/app_tagline"
+            android:textAppearance="?attr/textAppearanceBody2" />
+
+        <!-- Busy indicator -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/progress"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/progressLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textAppearance="?attr/textAppearanceCaption"
+                android:visibility="gone"
+                tools:text="Enrolling…" />
+        </LinearLayout>
+
+        <!-- ============================ Enrollment ============================ -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/enrollmentCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/enroll_title"
+                    android:textAppearance="?attr/textAppearanceSubtitle1" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/enroll_help"
+                    android:textAppearance="?attr/textAppearanceCaption" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="@string/hint_server_url">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/serverUrlInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textUri"
+                        android:autofillHints="" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/hint_device_name">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/deviceNameInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords"
+                        android:autofillHints="" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/hint_enrollment_code">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/enrollmentCodeInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapCharacters"
+                        android:maxLength="20"
+                        android:autofillHints="" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/enrollButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/action_enroll" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============================== Status ============================== -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/statusCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            app:cardCornerRadius="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_title"
+                    android:textAppearance="?attr/textAppearanceSubtitle1" />
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:stretchColumns="1">
+
+                    <TableRow>
+                        <TextView style="@style/StatusLabel" android:text="@string/label_device_id" />
+                        <TextView android:id="@+id/deviceIdValue" style="@style/StatusValue" tools:text="DEV-1A2B3C4D" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView style="@style/StatusLabel" android:text="@string/label_device_name" />
+                        <TextView android:id="@+id/deviceNameValue" style="@style/StatusValue" tools:text="Warehouse Gateway 01" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView style="@style/StatusLabel" android:text="@string/label_server" />
+                        <TextView android:id="@+id/serverValue" style="@style/StatusValue" tools:text="https://gateway.example.com/" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView style="@style/StatusLabel" android:text="@string/label_transport" />
+                        <TextView android:id="@+id/transportValue" style="@style/StatusValue" tools:text="polling" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView style="@style/StatusLabel" android:text="@string/label_intervals" />
+                        <TextView android:id="@+id/intervalsValue" style="@style/StatusValue" tools:text="poll 30s / heartbeat 60s" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView style="@style/StatusLabel" android:text="@string/label_battery" />
+                        <TextView android:id="@+id/batteryValue" style="@style/StatusValue" tools:text="85% (charging)" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView style="@style/StatusLabel" android:text="@string/label_network" />
+                        <TextView android:id="@+id/networkValue" style="@style/StatusValue" tools:text="WIFI" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView style="@style/StatusLabel" android:text="@string/label_queue" />
+                        <TextView android:id="@+id/queueValue" style="@style/StatusValue" tools:text="0 results queued" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView style="@style/StatusLabel" android:text="@string/label_fast_polling" />
+                        <TextView android:id="@+id/serviceStateValue" style="@style/StatusValue" tools:text="Off" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView style="@style/StatusLabel" android:text="@string/label_sms" />
+                        <TextView android:id="@+id/smsStateValue" style="@style/StatusValue" tools:text="Permission not granted" />
+                    </TableRow>
+                </TableLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/syncButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/action_sync_now" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/heartbeatButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/action_heartbeat" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/serviceToggleButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/start_fast_polling" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/fast_polling_help"
+                    android:textAppearance="?attr/textAppearanceCaption" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/smsPermissionButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/action_grant_sms" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/unenrollButton"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/action_unenroll" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</ScrollView>

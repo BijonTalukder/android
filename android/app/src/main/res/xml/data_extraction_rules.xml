@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+ equivalent of backup_rules.xml. See that file for the reasoning. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="gateway_secure_prefs.xml" />
+        <exclude domain="database" path="gateway.db" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="gateway_secure_prefs.xml" />
+        <exclude domain="database" path="gateway.db" />
+    </device-transfer>
+</data-extraction-rules>
