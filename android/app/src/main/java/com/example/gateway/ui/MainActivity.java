@@ -152,14 +152,19 @@ public class MainActivity extends AppCompatActivity implements GatewayEvents.Lis
         boolean smsGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
                 == PackageManager.PERMISSION_GRANTED;
         binding.smsPermissionButton.setVisibility(smsGranted ? View.GONE : View.VISIBLE);
-        binding.smsStateValue.setText(getString(smsGranted
-                ? R.string.sms_state_granted
-                : R.string.sms_state_not_granted));
+        // Both gates matter: the handset permission and the server-side switch.
+        binding.smsStateValue.setText(getString(
+                R.string.sms_state_format,
+                getString(smsGranted ? R.string.sms_state_granted : R.string.sms_state_not_granted),
+                getString(storage.isSmsEnabled()
+                        ? R.string.sms_state_server_on
+                        : R.string.sms_state_server_off)));
 
         // Config and the queue depth live in Room, so read them off the UI thread.
         GatewayApplication.io().execute(() -> {
             DeviceConfigEntity config = repository.currentConfig();
             int queued = repository.pendingResultCount();
+            int abandoned = repository.failedResults(50).size();
             runOnUiThread(() -> {
                 if (isFinishing() || isDestroyed()) {
                     return;
@@ -168,8 +173,11 @@ public class MainActivity extends AppCompatActivity implements GatewayEvents.Lis
                         R.string.intervals_format,
                         config.pollingIntervalSeconds,
                         config.heartbeatIntervalSeconds));
-                binding.queueValue.setText(
-                        getResources().getQuantityString(R.plurals.queued_results, queued, queued));
+                String queueText = getResources()
+                        .getQuantityString(R.plurals.queued_results, queued, queued);
+                binding.queueValue.setText(abandoned == 0
+                        ? queueText
+                        : getString(R.string.queue_failed_suffix, queueText, abandoned));
             });
         });
     }

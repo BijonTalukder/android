@@ -6,7 +6,7 @@
  * administrator does to a device afterwards.
  */
 import { Types } from "mongoose";
-import { ForbiddenError, NotFoundError } from "@/lib/errors";
+import { NotFoundError } from "@/lib/errors";
 import { env } from "@/lib/env";
 import { generateEnrollmentCode, randomId, sha256 } from "@/lib/crypto";
 import { toPaginated } from "@/lib/pagination";
@@ -23,7 +23,7 @@ import {
 } from "@/middleware/role.middleware";
 import { AuditLogService } from "@/modules/audit-log";
 import { OrganizationService } from "@/modules/organization";
-import { COMMAND_STATUS, ROLES } from "@/types";
+import { COMMAND_STATUS } from "@/types";
 import { toDeviceDto, type DeviceDto } from "./device.dto";
 import { sweepStaleDevices } from "./device.presence";
 import type {
@@ -423,13 +423,6 @@ export const DeviceService = {
       pollingIntervalSeconds: settings.pollingIntervalSeconds,
       heartbeatIntervalSeconds: settings.heartbeatIntervalSeconds,
     };
-  },
-
-  /** Guard for member-level accounts attempting an administrative action. */
-  assertCanManage(ctx: AuthContext) {
-    if (ctx.role === ROLES.ORGANIZATION_MEMBER) {
-      throw new ForbiddenError("Members cannot manage devices");
-    }
   },
 };
 

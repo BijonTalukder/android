@@ -128,15 +128,57 @@ dialog — see [`AndroidSmsSender`](android/app/src/main/java/com/example/gatewa
 
 ## Verification
 
+Everything below was run against this code, not asserted from the design.
+
 | Check | Command | Result |
 | --- | --- | --- |
-| Backend end-to-end | `cd web && npm run smoke` | 55 assertions, including a 6-way concurrent claim race |
-| Backend units | `cd web && npm test` | 8 tests (token round-trip, hashing, code normalisation) |
+| Backend end-to-end | `cd web && npm run smoke` | 58 assertions pass |
+| Backend units | `cd web && npm test` | 8 pass |
 | Types & lint | `cd web && npm run typecheck && npm run lint` | clean |
 | Production build | `cd web && npm run build` | clean |
-| Android build | `cd android && ./gradlew assembleDebug` | clean |
+| Android build | `cd android && ./gradlew assembleDebug` | clean, no compiler warnings |
 | Android lint | `cd android && ./gradlew lintDebug` | 0 findings |
-| Android units | `cd android && ./gradlew testDebugUnitTest` | 16 tests |
+| Android units | `cd android && ./gradlew testDebugUnitTest` | 15 pass |
+
+The smoke test is not a happy-path script. Among other things it asserts that:
+
+- a single command fired at **six concurrent polls** is claimed exactly once;
+- resubmitting a result is idempotent and does not alter a finished command;
+- a device token gets 401 on an admin route, and an admin session gets 401 on a
+  gateway route;
+- one tenant reading another tenant's device gets 404, and a forged
+  `organizationId` query parameter gets 403;
+- a single-use enrollment token cannot be redeemed twice;
+- blocking a device stops its polling and drops its queued commands;
+- revoking a device token stops it working immediately;
+- a member can read devices but cannot queue commands or mint enrollment tokens.
+
+### Verified on a real device
+
+The APK was installed on an Android emulator (API 36) and driven through its own
+UI against the live backend:
+
+| Behaviour | Observed |
+| --- | --- |
+| Enrollment | App redeemed a dashboard code; device appeared as `DEV-F3587321`, `ONLINE`, reporting `sdk_gphone64_x86_64` / Android 16 / API 36 |
+| Heartbeat + presence | Battery, charging state and network type arrived and rendered in the dashboard |
+| Command execution | `GET_DEVICE_STATUS`, `SYNC_NOW`, `UPDATE_CONFIG` and `SEND_SMS` all executed and reported `SUCCESS` |
+| `UPDATE_CONFIG` | New cadence applied on the handset *and* persisted server-side; the next heartbeat returned the new values rather than reverting them |
+| Offline result queue | With result submission failing, the device queued the outcome locally (`1 result waiting to send`) and the command stayed `DELIVERED`. When delivery recovered, the result flushed and the command became `SUCCESS` **with `deliveryAttempts` still 1** — the command was never re-executed |
+| Foreground service | Started as `dataSync` with an ongoing notification and a Stop action, polling at the configured 25s interval |
+| SEND_SMS gates | Refused with a 403 while the platform switch was off; refused again while the tenant switch was off; reported a typed `SMS_UNAVAILABLE` failure without the runtime permission; succeeded only once all three were open |
+
+Two real bugs came out of that run and are fixed:
+
+1. **Device tokens were rejected about half the time.** The token is
+   `adgd_<id>_<secret>` and the secret is base64url — whose alphabet contains
+   `_`. Splitting on every underscore rejected any token whose secret happened
+   to contain one. There is now a regression test that generates 500 tokens
+   ([`crypto.test.ts`](web/src/lib/crypto.test.ts)).
+2. **`UPDATE_CONFIG` silently reverted.** The device applied the new cadence,
+   but the server never learned it, so the next heartbeat handed back the old
+   values. A confirmed `UPDATE_CONFIG` now writes through to the device record,
+   covered by two smoke assertions.
 
 ## Documentation
 

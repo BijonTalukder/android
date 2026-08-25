@@ -5,6 +5,7 @@
  */
 import { Types } from "mongoose";
 import { AuditLog } from "@/models/AuditLog";
+import { User } from "@/models/User";
 import { logger } from "@/lib/logger";
 import { paginationSchema, toPaginated, type PaginationInput } from "@/lib/pagination";
 import type { ActorType } from "@/types";
@@ -45,6 +46,10 @@ export const AuditLogService = {
     }
   },
 
+  /**
+   * Read the trail. Scoped like everything else: a tenant admin sees only
+   * their own organization's entries.
+   */
   async list(
     filter: { organizationId?: Types.ObjectId; action?: string },
     pagination: PaginationInput = paginationSchema.parse({}),
@@ -53,7 +58,7 @@ export const AuditLogService = {
     if (filter.organizationId) query.organizationId = filter.organizationId;
     if (filter.action) query.action = filter.action;
 
-    const [items, total] = await Promise.all([
+    const [entries, total] = await Promise.all([
       AuditLog.find(query)
         .sort({ createdAt: -1 })
         .skip((pagination.page - 1) * pagination.limit)
@@ -62,6 +67,42 @@ export const AuditLogService = {
       AuditLog.countDocuments(query),
     ]);
 
+    // Older entries may predate `actorLabel`, and a user can be renamed, so
+    // resolve names at read time rather than trusting the denormalised copy.
+    const userIds = [
+      ...new Set(
+        entries
+          .filter((entry) => entry.actorType === "USER" && entry.actorId)
+          .map((entry) => String(entry.actorId)),
+      ),
+    ];
+    const users = userIds.length
+      ? await User.find({ _id: { $in: userIds } })
+          .select({ name: 1, email: 1 })
+          .lean()
+      : [];
+    const userMap = new Map(users.map((u) => [String(u._id), u]));
+
+    const items = entries.map((entry) => {
+      const user = entry.actorId ? userMap.get(String(entry.actorId)) : undefined;
+      return {
+        id: String(entry._id),
+        action: entry.action,
+        actorType: entry.actorType,
+        actor: user?.name ?? entry.actorLabel ?? "System",
+        actorEmail: user?.email ?? null,
+        targetType: entry.targetType,
+        targetId: entry.targetId ? String(entry.targetId) : null,
+        metadata: entry.metadata ?? null,
+        ip: entry.ip,
+        createdAt: entry.createdAt.toISOString(),
+      };
+    });
+
     return toPaginated(items, total, pagination);
   },
 };
+
+export type AuditLogDto = Awaited<
+  ReturnType<typeof AuditLogService.list>
+>["items"][number];

@@ -39,6 +39,10 @@
     <string name="service_state_off">Off</string>
     <string name="sms_state_granted">Permission granted</string>
     <string name="sms_state_not_granted">Permission not granted</string>
+    <string name="sms_state_server_off">server disabled</string>
+    <string name="sms_state_server_on">server enabled</string>
+    <string name="sms_state_format">%1$s · %2$s</string>
+    <string name="queue_failed_suffix">%1$s · gave up on %2$d</string>
 
     <!-- Actions -->
     <string name="action_sync_now">Sync now</string>

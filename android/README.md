@@ -25,9 +25,12 @@ host machine is `10.0.2.2`, which is the built-in default; on a physical device
 use your machine's LAN address.
 
 ```bash
-./gradlew testDebugUnitTest   # 16 unit tests
+./gradlew testDebugUnitTest   # 15 unit tests
 ./gradlew lintDebug           # 0 findings
 ```
+
+The Gradle wrapper is committed, so no local Gradle install is needed — only a
+JDK 17+ and an Android SDK with API 37 and build-tools 37.0.0.
 
 ## Enrolling a device
 

@@ -37,9 +37,6 @@ public class AndroidSmsSender implements SmsSender {
 
     private static final String TAG = "AndroidSmsSender";
 
-    /** A single GSM-7 segment in a concatenated message. */
-    private static final int SEGMENT_LENGTH = 153;
-
     private final Context context;
 
     public AndroidSmsSender(@NonNull Context context) {
@@ -120,14 +117,6 @@ public class AndroidSmsSender implements SmsSender {
                     "SEND_FAILED",
                     error.getMessage() == null ? "Unknown telephony error" : error.getMessage());
         }
-    }
-
-    /** Estimate the segment count without touching telephony. */
-    public static int estimateSegments(@NonNull String message) {
-        if (message.isEmpty()) {
-            return 0;
-        }
-        return Math.max(1, (int) Math.ceil(message.length() / (double) SEGMENT_LENGTH));
     }
 
     // getSmsManagerForSubscriptionId is deprecated in favour of

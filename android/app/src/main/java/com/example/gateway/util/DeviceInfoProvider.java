@@ -70,20 +70,6 @@ public class DeviceInfoProvider {
         return "UNKNOWN";
     }
 
-    public boolean hasConnectivity() {
-        ConnectivityManager manager = context.getSystemService(ConnectivityManager.class);
-        if (manager == null) {
-            return false;
-        }
-        Network network = manager.getActiveNetwork();
-        if (network == null) {
-            return false;
-        }
-        NetworkCapabilities capabilities = manager.getNetworkCapabilities(network);
-        return capabilities != null
-                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-    }
-
     @NonNull
     public String appVersion() {
         try {

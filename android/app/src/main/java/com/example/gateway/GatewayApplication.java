@@ -13,7 +13,6 @@ import com.example.gateway.command.SendSmsCommandHandler;
 import com.example.gateway.command.SyncCommandHandler;
 import com.example.gateway.command.UpdateConfigCommandHandler;
 import com.example.gateway.repository.GatewayRepository;
-import com.example.gateway.service.GatewayForegroundService;
 import com.example.gateway.sms.AndroidSmsSender;
 import com.example.gateway.storage.AppDatabase;
 import com.example.gateway.storage.DeviceConfigEntity;
@@ -119,10 +118,5 @@ public class GatewayApplication extends Application {
         channel.setDescription(getString(R.string.notification_channel_description));
         channel.setShowBadge(false);
         manager.createNotificationChannel(channel);
-    }
-
-    /** Convenience for the UI: is the fast-polling service currently running? */
-    public static boolean isForegroundServiceRunning() {
-        return GatewayForegroundService.isRunning();
     }
 }

@@ -17,6 +17,7 @@ import { formatRelative, titleCase } from "@/lib/format";
 import { ROLES, type Paginated, type Role } from "@/types";
 import type { OrganizationDto } from "@/modules/organization";
 import type { UserDto } from "@/modules/user";
+import type { AuditLogDto } from "@/modules/audit-log";
 
 export default function SettingsPage() {
   const { user, canManage, isSuperAdmin } = useSession();
@@ -53,6 +54,8 @@ export default function SettingsPage() {
         )}
 
         {canManage ? <TeamSettings isSuperAdmin={isSuperAdmin} /> : null}
+
+        {canManage ? <AuditTrail /> : null}
       </div>
     </>
   );
@@ -458,5 +461,65 @@ function CreateUserModal({
         </Select>
       </div>
     </Modal>
+  );
+}
+
+/**
+ * The audit trail. An audit log nobody can read is not an audit log, so the
+ * entries the services write are surfaced here rather than only living in the
+ * database.
+ */
+function AuditTrail() {
+  const { data, loading } = useApi<Paginated<AuditLogDto>>(
+    `/api/audit-logs${qs({ limit: 25 })}`,
+    30_000,
+  );
+
+  return (
+    <Card>
+      <CardHeader
+        title="Admin activity"
+        description="Every privileged action, newest first."
+      />
+      {loading && !data ? (
+        <Spinner label="Loading activity" />
+      ) : (
+        <TableWrap>
+          <Table>
+            <thead>
+              <tr>
+                <Th>When</Th>
+                <Th>Actor</Th>
+                <Th>Action</Th>
+                <Th>Target</Th>
+                <Th>IP</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {(data?.items.length ?? 0) === 0 ? (
+                <EmptyRow colSpan={5} message="No recorded activity yet." />
+              ) : (
+                data!.items.map((entry) => (
+                  <Tr key={entry.id}>
+                    <Td className="whitespace-nowrap text-muted tabular">
+                      {formatRelative(entry.createdAt)}
+                    </Td>
+                    <Td>
+                      <span className="font-medium">{entry.actor}</span>
+                      <span className="ml-2 text-xs text-subtle">
+                        {entry.actorType.toLowerCase()}
+                      </span>
+                    </Td>
+                    <Td className="font-mono text-xs text-muted">{entry.action}</Td>
+                    <Td className="text-muted">{entry.targetType ?? "—"}</Td>
+                    <Td className="font-mono text-xs text-subtle">{entry.ip ?? "—"}</Td>
+                  </Tr>
+                ))
+              )}
+            </tbody>
+          </Table>
+        </TableWrap>
+      )}
+    </Card>
   );
 }

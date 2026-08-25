@@ -15,7 +15,4 @@ public interface DeviceConfigDao {
     @Nullable
     @Query("SELECT * FROM device_config WHERE id = 1")
     DeviceConfigEntity get();
-
-    @Query("DELETE FROM device_config")
-    void clear();
 }

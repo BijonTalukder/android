@@ -272,6 +272,44 @@ async function main() {
   });
   check("UPDATE_CONFIG accepted", configCommand.status === 201, configCommand.body);
 
+  // A confirmed UPDATE_CONFIG must stick: the server's copy of the device
+  // configuration has to follow, or the next heartbeat silently reverts it.
+  const configCommandId: string = configCommand.body.data.id;
+  const configPoll = await anon.get("/api/gateway/commands?limit=5", bearer(deviceToken));
+  const configClaim = (configPoll.body.data?.commands ?? []).find(
+    (c: any) => c.id === configCommandId,
+  );
+  check("UPDATE_CONFIG is delivered to the device", Boolean(configClaim), configPoll.body);
+
+  await anon.post(
+    `/api/gateway/commands/${configCommandId}/result`,
+    {
+      status: "SUCCESS",
+      claimId: configClaim?.claimId,
+      result: { applied: true, pollingIntervalSeconds: 45, heartbeatIntervalSeconds: 90 },
+    },
+    bearer(deviceToken),
+  );
+
+  const afterConfig = await admin.get(`/api/devices/${deviceObjectId}`);
+  check(
+    "a confirmed UPDATE_CONFIG updates the device on the server",
+    afterConfig.body.data?.config?.pollingIntervalSeconds === 45 &&
+      afterConfig.body.data?.config?.heartbeatIntervalSeconds === 90,
+    afterConfig.body,
+  );
+
+  const configHeartbeat = await anon.post(
+    "/api/gateway/heartbeat",
+    { batteryLevel: 80 },
+    bearer(deviceToken),
+  );
+  check(
+    "the next heartbeat returns the new configuration rather than reverting it",
+    configHeartbeat.body.data?.config?.pollingIntervalSeconds === 45,
+    configHeartbeat.body,
+  );
+
   const badConfig = await admin.post(`/api/devices/${deviceObjectId}/commands`, {
     type: "UPDATE_CONFIG",
     payload: { pollingIntervalSeconds: 1 },

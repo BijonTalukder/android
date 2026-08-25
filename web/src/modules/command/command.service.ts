@@ -284,10 +284,12 @@ export const CommandService = {
     await sweepCommands(device.organizationId, true);
 
     const claimed: GatewayCommandDto[] = [];
-    const now = new Date();
 
     for (let i = 0; i < limit; i++) {
       const claimId = randomId(8);
+      // Stamped per iteration, not once for the batch: the delivery order
+      // within a poll is real information and should be visible in the log.
+      const now = new Date();
 
       const command = await DeviceCommand.findOneAndUpdate(
         {
@@ -414,6 +416,13 @@ export const CommandService = {
       return { command: toCommandDto(current!), idempotent: true };
     }
 
+    // The device has confirmed it applied the new cadence, so the server's copy
+    // must follow. Without this the next heartbeat would return the previous
+    // values and silently undo the command.
+    if (isSuccess && updated.type === COMMAND_TYPE.UPDATE_CONFIG) {
+      await applyConfirmedConfig(device._id, updated.payload);
+    }
+
     void DeviceLogService.record({
       organizationId: device.organizationId,
       deviceId: device._id,
@@ -428,28 +437,31 @@ export const CommandService = {
     return { command: toCommandDto(updated), idempotent: false };
   },
 
-  /* ---------------------------------------------------------------- */
-  /* Reporting                                                         */
-  /* ---------------------------------------------------------------- */
-
-  async statsFor(organizationId: Types.ObjectId | null) {
-    const match = organizationId ? { organizationId } : {};
-    const rows = await DeviceCommand.aggregate<{ _id: string; count: number }>([
-      { $match: match },
-      { $group: { _id: "$status", count: { $sum: 1 } } },
-    ]);
-    const byStatus = Object.fromEntries(rows.map((r) => [r._id, r.count]));
-    return {
-      total: rows.reduce((sum, r) => sum + r.count, 0),
-      pending: byStatus[COMMAND_STATUS.PENDING] ?? 0,
-      delivered: byStatus[COMMAND_STATUS.DELIVERED] ?? 0,
-      processing: byStatus[COMMAND_STATUS.PROCESSING] ?? 0,
-      success: byStatus[COMMAND_STATUS.SUCCESS] ?? 0,
-      failed: byStatus[COMMAND_STATUS.FAILED] ?? 0,
-      expired: byStatus[COMMAND_STATUS.EXPIRED] ?? 0,
-    };
-  },
 };
+
+/**
+ * Persist the configuration a device has confirmed applying.
+ *
+ * Reads from the command payload rather than the reported result: the payload
+ * was authored and validated server-side at creation time, while a result is
+ * device-supplied input and must not be able to set arbitrary values.
+ */
+async function applyConfirmedConfig(
+  deviceId: Types.ObjectId,
+  payload: Record<string, unknown>,
+): Promise<void> {
+  const update: Record<string, number> = {};
+
+  const polling = payload.pollingIntervalSeconds;
+  if (typeof polling === "number") update["config.pollingIntervalSeconds"] = polling;
+
+  const heartbeat = payload.heartbeatIntervalSeconds;
+  if (typeof heartbeat === "number") update["config.heartbeatIntervalSeconds"] = heartbeat;
+
+  if (Object.keys(update).length === 0) return;
+
+  await Device.updateOne({ _id: deviceId }, { $set: update }, { runValidators: true });
+}
 
 async function deviceRefMap(ids: Types.ObjectId[]): Promise<Map<string, DeviceRef>> {
   const unique = [...new Set(ids.map((id) => String(id)))];

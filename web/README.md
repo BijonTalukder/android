@@ -112,6 +112,7 @@ Every response uses one envelope:
 | POST | `/api/commands/:id/cancel` | Only while still `PENDING` |
 | GET | `/api/devices/:id/logs`, `/api/logs` | Per-device and organization-wide |
 | GET | `/api/dashboard/summary` | Counts plus recent activity |
+| GET | `/api/audit-logs` | Who did what; administrators only |
 | GET/POST | `/api/organizations` | Super admin only |
 | GET/PATCH | `/api/organizations/:id` | Tenant admins may read and tune their own |
 | GET/POST | `/api/users`, GET/PATCH/DELETE `/api/users/:id` | |
@@ -160,6 +161,12 @@ been superseded.
 `COMMAND_CLAIM_TIMEOUT_SECONDS` bounds how long a claim may stall before it is
 re-queued, and `COMMAND_MAX_DELIVERY_ATTEMPTS` bounds how often that can happen
 before the command is failed for good.
+
+A confirmed `UPDATE_CONFIG` writes through to `Device.config`. Without that, the
+device would apply the new cadence and the very next heartbeat would hand back
+the old one — the command would appear to succeed and silently do nothing. The
+write uses the *command payload*, which was authored and validated server-side,
+not the device-reported result, which is untrusted input.
 
 ## Security
 
